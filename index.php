@@ -2,11 +2,9 @@
 
 include('bd/Database.class.php');
 
-downloadZipFile('http://testedev.baixou.com.br/processo/zip', 'file.zip');
-
- function downloadZipFile($url, $filepath){
+function downloadZipFile($url, $filepath){
      $fp = fopen($filepath, 'w+');
-     $ch = curl_init($url);
+     $ch = curl_init( $url );
 
      curl_setopt($ch, CURLOPT_RETURNTRANSFER, false);
      curl_setopt($ch, CURLOPT_BINARYTRANSFER, true); 
@@ -18,10 +16,8 @@ downloadZipFile('http://testedev.baixou.com.br/processo/zip', 'file.zip');
      curl_close($ch);
      fclose($fp);
 
-     return (filesize($filepath) > 0)? true : false;
+     return (filesize( $filepath ) > 0)? true : false;
  }
-
-unzip();
 
 function unzip(){
     $zip = new ZipArchive;
@@ -33,46 +29,56 @@ function unzip(){
     }
 }
 
-readXml();
-
 function readXml(){
-    $out = array();
+    
     if (file_exists('0303.xml')) {
         
-    $string = file_get_contents('0303.xml');
+        $string = file_get_contents('0303.xml');
+        $objProdutos = new ArrayObject();
 
-    $objProdutos = new ArrayObject();
+        $string = str_replace(array('<Descricao>','</Descricao>'), array('<Descricao><![CDATA[', ']]></Descricao>'), $string);
+        $string = str_replace('&', '&amp;', $string);
 
-    $string = str_replace(array('<Descricao>','</Descricao>'), array('<Descricao><![CDATA[', ']]></Descricao>'), $string);
-    $string = str_replace('&', '&amp;', $string);
-    
-    $src = new DOMDocument('1.0');
-    $src->formatOutput = true;
-    $src->preserveWhiteSpace = false;
-    $src->loadXML($string);
-    $xmlprodutos = $src->getElementsByTagName('produto');
-    foreach ($xmlprodutos as $i => $xml) {
-        $produto = new stdClass();
+        $src = new DOMDocument('1.0');
+        $src->formatOutput = true;
+        $src->preserveWhiteSpace = false;
+        $src->loadXML($string);
+        $xmlprodutos = $src->getElementsByTagName('produto');
         
-        $produto->codigo = formatar( $src->getElementsByTagName('Reduzido')->item($i)->nodeValue );
-        $produto->descricao = formatar( $src->getElementsByTagName('Descricao')->item($i)->nodeValue );
-        $produto->fornecedor = formatar( $src->getElementsByTagName('Fornecedor')->item($i)->nodeValue );
-        $produto->preco = formatar( $src->getElementsByTagName('PrecoPor')->item($i)->nodeValue );                        
+        foreach ($xmlprodutos as $i => $xml) {
+            $produto = new stdClass();
+            
+            $produto->codigo = formatar( $src->getElementsByTagName('Reduzido')->item($i)->nodeValue );
+            $produto->descricao = formatar( $src->getElementsByTagName('Descricao')->item($i)->nodeValue );
+            $produto->fornecedor = formatar( $src->getElementsByTagName('Fornecedor')->item($i)->nodeValue );
+            $produto->preco = formatar( $src->getElementsByTagName('PrecoPor')->item($i)->nodeValue );                        
+            
+            $objProdutos->append( $produto ); 
+        }
         
-        $objProdutos->append( $produto ); 
-    }
         $database = new Database();
-        $database->insertDB($objProdutos);
+        $database->insertDB( $objProdutos );
         
+        //Mantive o print_r para apresentar os dados do xml objetos na tela
         echo '<pre>';        
-        print_r($objProdutos);
-        echo '</pre>';
-        
-    } else {
-        exit("Arquivo recebido não é o esperado '0303.xml', execute novamente o script");
-    }
+        print_r( $objProdutos );
+        echo '</pre>';        
+            
+        } else {
+            exit("Arquivo recebido não é o esperado '0303.xml', execute novamente o script");
+        }
 }
 
-    function formatar($tag){        
-        return mb_substr(str_replace(array('<', '>'), array('&lt;', '&gt;'), $tag), 0, 335);
-    }
+function formatar( $tag ){        
+    return mb_substr(str_replace(array('<', '>'), array('&lt;', '&gt;'), $tag), 0, 335);
+}
+
+function removeDownload(){
+    unlink('file.zip');
+    unlink('0303.xml');
+}
+
+downloadZipFile('http://testedev.baixou.com.br/processo/zip', 'file.zip');
+unzip();
+readXml();
+removeDownload();
