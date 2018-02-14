@@ -1,5 +1,6 @@
 <?php
 
+include('bd/Database.class.php');
 
 downloadZipFile('http://testedev.baixou.com.br/processo/zip', 'file.zip');
 
@@ -60,12 +61,12 @@ function readXml(){
         
         $objProdutos->append( $produto ); 
     }
-
-        echo '<pre>';
-        // print_r(utf8_encode($objProdutos));
+        $database = new Database();
+        $database->insertDB($objProdutos);
+        
+        echo '<pre>';        
         print_r($objProdutos);
         echo '</pre>';
-      
         
     } else {
         exit("Arquivo recebido não é o esperado '0303.xml', execute novamente o script");
