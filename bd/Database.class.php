@@ -4,6 +4,7 @@
  *
  * @author Carlos Eduardo Vieira
  */
+
 class Database {
        
     private $pdo;
