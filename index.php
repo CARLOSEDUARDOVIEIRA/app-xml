@@ -49,8 +49,8 @@ function readXml(){
     $src->formatOutput = true;
     $src->preserveWhiteSpace = false;
     $src->loadXML($string);
-    $books = $src->getElementsByTagName('produto');
-    foreach ($books as $i => $book) {
+    $xmlprodutos = $src->getElementsByTagName('produto');
+    foreach ($xmlprodutos as $i => $xml) {
         $produto = new stdClass();
         
         $produto->codigo = formatar( $src->getElementsByTagName('Reduzido')->item($i)->nodeValue );
