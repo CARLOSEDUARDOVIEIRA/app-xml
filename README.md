@@ -1,5 +1,7 @@
 # Download e Tratamento de XML com persistência.
 
-Implementação backend de download e tratamento de xml zipado. O script foi dividido em várias funcionalidades que são responsáveis por cada tarefa solicitada. 
+Implementação backend de download e tratamento de xml zipado. 
+Utilizando a arquitetura REST, é feito uma solicitação a uma API que retorna um conteúdo xml.
+O script vai lê esse conteúdo recebido e gravá-lo em um banco de dados mysql.
 
 ![Produtos](/img/bd.png)
